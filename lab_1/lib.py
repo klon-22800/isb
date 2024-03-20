@@ -3,7 +3,7 @@ import json
 from typing import Optional
 
 
-def get_key(file_path: str) -> Optional[dict]:
+def get_key(file_path: str) -> Optional[dict[str, str]]:
     """
         The function reads the key from the json file, and if successful, returns a dict
 
@@ -18,7 +18,7 @@ def get_key(file_path: str) -> Optional[dict]:
             data = json.load(f)
             return data
     except Exception:
-        return False
+        return None
 
 
 def get_text(file_path: str) -> Optional[str]:
@@ -36,14 +36,14 @@ def get_text(file_path: str) -> Optional[str]:
             data = data.replace("\n", "")
             return data
     except Exception:
-        return False
+        return None
 
 
-def print_dict(source: dict) -> str:
+def print_dict(source: dict[str, str]) -> str:
     """Function for beautiful dictionary printing
 
     Args:
-        source (dict): Dict neddy in printing
+        source (dict[str, str]): Dict neddy in printing
 
     Returns:
         str: result of dict printing
@@ -54,14 +54,14 @@ def print_dict(source: dict) -> str:
     return res
 
 
-def get_freq(source_text: str) -> dict:
+def get_freq(source_text: str) -> dict[str, str]:
     """The function counts the frequency of occurrence of symbols in the text
 
     Args:
         source_text (str): Text to analysis
 
     Returns:
-        dict: dictionary, where the key is the symbol and the value is the frequency
+        dict[str, str]: dictionary, where the key is the symbol and the value is the frequency
     """
     freq = {}
     lenght = len(source_text)
@@ -70,12 +70,12 @@ def get_freq(source_text: str) -> dict:
     return dict(sorted(freq.items(), key=lambda x: x[1], reverse=True))
 
 
-def crypt_by_key(text: str, key: dict) -> Optional[str]:
+def crypt_by_key(text: str, key: dict[str, str]) -> Optional[str]:
     """the function uses the cryption key to replace characters in the text using the key
 
     Args:
         text (str): text to crypt
-        key (dict): cryption key
+        key (dict[str, str]): cryption key
 
     Returns:
         str: result of crypting
@@ -85,16 +85,16 @@ def crypt_by_key(text: str, key: dict) -> Optional[str]:
         try:
             res += key[letter]
         except KeyError:
-            return False
+            return None
     return res
 
 
-def decrypt_by_key(text: str, key: dict) -> Optional[str]:
+def decrypt_by_key(text: str, key: dict[str, str]) -> Optional[str]:
     """the function uses the cryption key to replace characters in the text using the key
 
     Args:
         text (str): text to decrypt
-        key (dict): cryption key
+        key (dict[str, str]): cryption key
 
     Returns:
         str: result of decrypting
@@ -105,7 +105,7 @@ def decrypt_by_key(text: str, key: dict) -> Optional[str]:
         try:
             res += new_key[letter]
         except KeyError:
-            return False
+            return None
     return res
 
 
@@ -120,4 +120,4 @@ def write_to_file(text: str, path: str) -> Optional[None]:
         with open(path, "w", encoding="utf-8") as f:
             f.write(text)
     except Exception:
-        return False
+        return None

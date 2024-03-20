@@ -38,7 +38,9 @@ class MessageBox:
 
 class ScrollLabel(QScrollArea):
     def __init__(self, *args, **kwargs) -> None:
-        """Constructor of ScrollLabel"""
+        """
+        Constructor of ScrollLabel
+        """
         QScrollArea.__init__(self, *args, **kwargs)
         self.setWidgetResizable(True)
         text = QWidget(self)
@@ -59,9 +61,10 @@ class ScrollLabel(QScrollArea):
 
 
 class Window(QWidget):
-
     def __init__(self) -> None:
-        """Constructor of main Window"""
+        """
+        Constructor of main Window
+        """
         super().__init__()
         self.initUI()
         self.setStyleSheet(
@@ -69,7 +72,9 @@ class Window(QWidget):
         )
 
     def initUI(self) -> None:
-        """The function create an UI object of main Window"""
+        """
+        The function create an UI object of main Window
+        """
         self.showFullScreen()
 
         self.setWindowTitle("Encoder")
@@ -130,7 +135,9 @@ class Window(QWidget):
         self.show()
 
     def dialogue_window(self) -> None:
-        """The function show dialog window to load text or key files"""
+        """
+        The function show dialog window to load text or key files
+        """
         dialog = QDialog(self)
         dialog.setWindowTitle("Load")
         dialog.setFixedSize(500, 200)
@@ -176,7 +183,9 @@ class Window(QWidget):
         dialog.exec_()
 
     def double_choice(self) -> None:
-        """The function show window to save a result of crypting/decrypting"""
+        """
+        The function show window to save a result of crypting/decrypting
+        """
         dialog = QDialog(self)
         dialog.setWindowTitle("Decrypt/Crypt")
         dialog.setFixedSize(500, 250)
@@ -324,13 +333,16 @@ class Window(QWidget):
             MessageBox(self, "Load text and key")
 
     def choice_exit(self) -> None:
-        """The function closes the program
+        """
+        The function closes the program
         """
         sys.exit()
 
 
-def start() -> None:
-    """The function makes a main Window and show it"""
+def run() -> None:
+    """
+    The function makes a main Window and show it
+    """
     app = QApplication(sys.argv)
     ex = Window()
     ex.show()
@@ -338,4 +350,4 @@ def start() -> None:
 
 
 if __name__ == "__main__":
-    start()
+    run()
