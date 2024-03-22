@@ -187,7 +187,7 @@ class Window(QWidget):
         The function show window to save a result of crypting/decrypting
         """
         dialog = QDialog(self)
-        dialog.setWindowTitle("Decrypt/Crypt")
+        dialog.setWindowTitle("Decrypt/Encrypt")
         dialog.setFixedSize(500, 250)
         path_label = QLabel("Choose path:", dialog)
         path_label.setStyleSheet("color: #C3D0DB; min-height:30%")
@@ -216,12 +216,12 @@ class Window(QWidget):
         )
         decyp_button.adjustSize()
 
-        cyp_button = QPushButton("Crypt", dialog)
+        cyp_button = QPushButton("Encrypt", dialog)
         cyp_button.setFont(QFont("Sanserif", 10))
         cyp_button.setStyleSheet(
             "background:#3C5A75; border-radius: 5px; min-height:30%"
         )
-        cyp_button.clicked.connect(self.crypt_by_key)
+        cyp_button.clicked.connect(self.encrypt_by_key)
         cyp_button.adjustSize()
 
         layout = QVBoxLayout()
@@ -312,23 +312,17 @@ class Window(QWidget):
         """
         try:
             res_text = lib.decrypt_by_key(self.text, self.key)
-            if res_text:
-                lib.write_to_file(res_text, self.result_text_path)
-            else:
-                MessageBox(self, "Cant decyp text by this key")
+            lib.write_to_file(res_text, self.result_text_path)
         except AttributeError:
             MessageBox(self, "Load text and key")
 
-    def crypt_by_key(self) -> None:
+    def encrypt_by_key(self) -> None:
         """
         The function crypts the text and writes it to a file
         """
         try:
-            res_text = lib.crypt_by_key(self.text, self.key)
-            if res_text:
-                lib.write_to_file(res_text, self.result_text_path)
-            else:
-                MessageBox(self, "Cant cyp text by this key")
+            res_text = lib.encrypt_by_key(self.text, self.key)
+            lib.write_to_file(res_text, self.result_text_path)
         except AttributeError:
             MessageBox(self, "Load text and key")
 

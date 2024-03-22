@@ -64,13 +64,13 @@ def get_freq(source_text: str) -> dict[str, str]:
         dict[str, str]: dictionary, where the key is the symbol and the value is the frequency
     """
     freq = {}
-    lenght = len(source_text)
+    length = len(source_text)
     for symb in set(source_text):
-        freq[symb] = round((source_text.count(symb) / lenght), 5)
+        freq[symb] = round((source_text.count(symb) / length), 5)
     return dict(sorted(freq.items(), key=lambda x: x[1], reverse=True))
 
 
-def crypt_by_key(text: str, key: dict[str, str]) -> Optional[str]:
+def encrypt_by_key(text: str, key: dict[str, str]) -> str:
     """the function uses the cryption key to replace characters in the text using the key
 
     Args:
@@ -85,11 +85,11 @@ def crypt_by_key(text: str, key: dict[str, str]) -> Optional[str]:
         try:
             res += key[letter]
         except KeyError:
-            return None
+            res += letter
     return res
 
 
-def decrypt_by_key(text: str, key: dict[str, str]) -> Optional[str]:
+def decrypt_by_key(text: str, key: dict[str, str]) -> str:
     """the function uses the cryption key to replace characters in the text using the key
 
     Args:
@@ -105,7 +105,7 @@ def decrypt_by_key(text: str, key: dict[str, str]) -> Optional[str]:
         try:
             res += new_key[letter]
         except KeyError:
-            return None
+            res += letter
     return res
 
 
