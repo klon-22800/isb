@@ -15,8 +15,8 @@ def get_key(file_path: str) -> Optional[dict[str, str]]:
     """
     try:
         with open(file_path, encoding="utf-8") as f:
-            data = json.load(f)
-            return data
+            data = json.load(f)  
+        return data
     except Exception:
         return None
 
@@ -34,7 +34,7 @@ def get_text(file_path: str) -> Optional[str]:
         with open(file_path, encoding="utf-8") as f:
             data = f.read()
             data = data.replace("\n", "")
-            return data
+        return data
     except Exception:
         return None
 
@@ -82,9 +82,9 @@ def encrypt_by_key(text: str, key: dict[str, str]) -> str:
     """
     res = ""
     for letter in text:
-        try:
+        if letter in key.keys():
             res += key[letter]
-        except KeyError:
+        else:
             res += letter
     return res
 
@@ -102,9 +102,9 @@ def decrypt_by_key(text: str, key: dict[str, str]) -> str:
     new_key = {v: k for k, v in key.items()}
     res = ""
     for letter in text:
-        try:
+        if letter in new_key.keys():
             res += new_key[letter]
-        except KeyError:
+        else:
             res += letter
     return res
 
