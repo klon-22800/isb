@@ -10,7 +10,7 @@ if __name__ == "__main__":
     print(Nist_test.frequency_bit_test(java_seq))
     print(Nist_test.identical_consecutive_bits(java_seq))
     print(Nist_test.longest_sequence_of_ones_test(java_seq))
-    print("Cpp java test:")
+    print("Nist cpp test:")
     print(Nist_test.frequency_bit_test(cpp_seq))
     print(Nist_test.identical_consecutive_bits(cpp_seq))
     print(Nist_test.longest_sequence_of_ones_test(cpp_seq))

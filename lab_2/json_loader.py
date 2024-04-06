@@ -15,7 +15,7 @@ def load(file_path: str) -> Optional[dict[str, str]]:
     """
     try:
         with open(file_path, encoding="utf-8") as f:
-            data = json.load(f)  
+            data = json.load(f)
         return data
     except Exception:
         return None

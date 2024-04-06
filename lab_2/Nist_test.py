@@ -5,6 +5,7 @@ import logging
 
 PI = {1: 0.2148, 2: 0.3672, 3: 0.2305, 4: 0.1875}
 
+
 def frequency_bit_test(sequence: str) -> float:
     """frequency bit test
 
@@ -27,6 +28,7 @@ def frequency_bit_test(sequence: str) -> float:
             return math.erfc(s / (2**0.5))
     except Exception as error:
         logging.error(error)
+
 
 def identical_consecutive_bits(sequence: str) -> float:
     """identical consecutive bits test
@@ -55,6 +57,7 @@ def identical_consecutive_bits(sequence: str) -> float:
             return 0
     except Exception as error:
         logging.error(error)
+
 
 def longest_sequence_of_ones_test(sequence: str) -> float:
     """longest sequence of ones test
@@ -86,6 +89,7 @@ def longest_sequence_of_ones_test(sequence: str) -> float:
             return 0
     except Exception as error:
         logging.error(error)
+
 
 def longest_sequence(string: str, symb: str) -> int:
     """Counts the longest sequence of symbols
