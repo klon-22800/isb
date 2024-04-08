@@ -1,11 +1,32 @@
 import math
 import logging
+import json
 
 import mpmath
+
+from typing import Optional
 
 from const import PI
 
 
+def load(file_path: str) -> Optional[dict[str, str]]:
+    """
+        The function reads json file and return dict
+
+    Args:
+        file_path (str): path to json file
+
+    Returns:
+        Optional[dict]: dict contains sequences
+    """
+    try:
+        with open(file_path, encoding="utf-8") as f:
+            data = json.load(f)
+        return data
+    except Exception as error:
+        logging.error(error)
+    
+    
 def frequency_bit_test(sequence: str) -> float:
     """frequency bit test
 
