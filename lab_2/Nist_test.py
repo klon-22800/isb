@@ -3,8 +3,7 @@ import logging
 
 import mpmath
 
-
-PI = {1: 0.2148, 2: 0.3672, 3: 0.2305, 4: 0.1875}
+from const import PI
 
 
 def frequency_bit_test(sequence: str) -> float:
