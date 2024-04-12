@@ -16,3 +16,4 @@ if __name__ == "__main__":
     print(nist_test.frequency_bit_test(cpp_seq))
     print(nist_test.identical_consecutive_bits(cpp_seq))
     print(nist_test.longest_sequence_of_ones_test(cpp_seq))
+    

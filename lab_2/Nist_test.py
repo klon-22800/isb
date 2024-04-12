@@ -135,3 +135,4 @@ def longest_sequence(string: str, symb: str) -> int:
         return max
     except Exception as error:
         logging.error(error)
+        
