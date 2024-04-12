@@ -25,8 +25,8 @@ def load(file_path: str) -> Optional[dict[str, str]]:
         return data
     except Exception as error:
         logging.error(error)
-    
-    
+
+
 def frequency_bit_test(sequence: str) -> float:
     """frequency bit test
 
@@ -69,8 +69,9 @@ def identical_consecutive_bits(sequence: str) -> float:
                 for i in range(length - 1):
                     if sequence[i] != sequence[i + 1]:
                         v_n += 1
-                return (abs(v_n - 2 * length * ones_per * (1 - ones_per))) / (
-                    2 * (2 * length) ** 0.5 * ones_per * (1 - ones_per)
+                return math.erfc(
+                    abs(v_n - 2 * length * ones_per * (1 - ones_per))
+                    / (2 * (2 * length) ** 0.5 * ones_per * (1 - ones_per))
                 )
             else:
                 return 0
@@ -135,4 +136,3 @@ def longest_sequence(string: str, symb: str) -> int:
         return max
     except Exception as error:
         logging.error(error)
-        
