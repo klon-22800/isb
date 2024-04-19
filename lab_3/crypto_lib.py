@@ -70,12 +70,12 @@ class Asymmetrical:
         return keys, keys.public_key()
     
 
-    def encrypt_symmetrical_key(self, symmetrical_key_path: str, public_key_path: str, encrypted_key_path: str):
+    def encrypt_symmetrical_key(self, symmetrical_key: str, public_key_path: str, encrypted_key_path: str):
         public_key = serialize.read_public_key(public_key_path)
-        symmetrical_key = serialize.read_symmetric_key(symmetrical_key_path)
         encrypted_key = public_key.encrypt(symmetrical_key, padding.OAEP(mgf=padding.MGF1(algorithm=hashes.SHA256()),algorithm=hashes.SHA256(),label=None))
 
         serialize.write_bytes(encrypted_key_path, encrypted_key)
+        return encrypted_key
 
     def decrypt_symmetrical_key(self, encrypted_key_path: str, private_key_path:str, decrypted_key_path:str):
         symmetrical_key = serialize.read_symmetric_key(encrypted_key_path)
@@ -89,9 +89,9 @@ class Asymmetrical:
 # serialize.write_symmetric_key('lab_3//tests//symmetric_key.txt', a.key_generate(32))
 # a.encrypt_text("lab_3//tests//text.txt", "lab_3//tests//symmetric_key.txt", "lab_3//tests//encr.txt", 128)
 # a.decrypt_text("lab_3//tests//symmetric_key.txt", "lab_3//tests//encr.txt", "lab_3//tests//decr.txt", 128)
-b = Asymmetrical()
-keys = b.key_generate()
-serialize.write_private_key('lab_3//tests//private_key.pem',keys[0])
-serialize.wrute_public_key('lab_3//tests//public_key.pem',keys[1])
-b.encrypt_symmetrical_key("lab_3//tests//symmetric_key.txt", 'lab_3//tests//public_key.pem', 'lab_3//tests//encr_symmetric_key.txt')
-b.decrypt_symmetrical_key('lab_3//tests//encr_symmetric_key.txt', 'lab_3//tests//private_key.pem','lab_3//tests//decr_symmetric_key.txt' )
+# b = Asymmetrical()
+# keys = b.key_generate()
+# serialize.write_private_key('lab_3//tests//private_key.pem',keys[0])
+# serialize.wrute_public_key('lab_3//tests//public_key.pem',keys[1])
+# b.encrypt_symmetrical_key("lab_3//tests//symmetric_key.txt", 'lab_3//tests//public_key.pem', 'lab_3//tests//encr_symmetric_key.txt')
+# b.decrypt_symmetrical_key('lab_3//tests//encr_symmetric_key.txt', 'lab_3//tests//private_key.pem','lab_3//tests//decr_symmetric_key.txt' )

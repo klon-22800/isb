@@ -13,10 +13,12 @@ from PyQt5.QtWidgets import (
     QLineEdit,
     QFileDialog,
     QMessageBox,
+    QComboBox
 )
 from PyQt5.QtGui import QFont, QIcon
 
-import lab_3.crypto_lib as lib
+import crypto_lib as lib
+import serialize
 
 
 class MessageBox:
@@ -70,6 +72,9 @@ class Window(QWidget):
         self.setStyleSheet(
             "background:#061E33; color: #C3D0DB; font-weight:bold; border-radius: 5px;"
         )
+        self.sym = lib.Symmetrical()
+        self.asym = lib.Asymmetrical()
+
 
     def initUI(self) -> None:
         """
@@ -81,29 +86,29 @@ class Window(QWidget):
         QToolTip.setFont(QFont("SansSerif", 10))
         self.setWindowIcon(QIcon("home.png"))
 
-        self.button_load_key_from_file = QPushButton("Load key", self)
-        self.button_load_key_from_file.adjustSize()
-        self.button_load_key_from_file.setFont(QFont("Arial", 15))
-        self.button_load_key_from_file.setStyleSheet(
+        self.button_key_generator = QPushButton("Hybrid system \n key generation", self)
+        self.button_key_generator.adjustSize()
+        self.button_key_generator.setFont(QFont("Arial", 15))
+        self.button_key_generator.setStyleSheet(
             "background:#3C5A75; border-radius: 5px; min-width: 300px; min-height: 200px;"
         )
-        self.button_load_key_from_file.clicked.connect(self.key_window)
+        self.button_key_generator.clicked.connect(self.key_window)
 
-        self.button_load_text_from_file = QPushButton("Load text", self)
-        self.button_load_text_from_file.adjustSize()
-        self.button_load_text_from_file.setFont(QFont("Arial", 15))
-        self.button_load_text_from_file.setStyleSheet(
+        self.button_data_encryption = QPushButton("Data encryption with\n a hybrid system", self)
+        self.button_data_encryption.adjustSize()
+        self.button_data_encryption.setFont(QFont("Arial", 15))
+        self.button_data_encryption.setStyleSheet(
             "background:#3C5A75; border-radius: 5px; min-width: 300px; min-height: 200px;"
         )
-        self.button_load_text_from_file.clicked.connect(self.text_window)
+        self.button_data_encryption.clicked.connect(self.text_window)
 
-        self.crypt = QPushButton("Decrypt/Crypt", self)
-        self.crypt.adjustSize()
-        self.crypt.setFont(QFont("Arial", 15))
-        self.crypt.setStyleSheet(
+        self.button_data_decryption = QPushButton("Data decryption with\n a hybrid system", self)
+        self.button_data_decryption.adjustSize()
+        self.button_data_decryption.setFont(QFont("Arial", 15))
+        self.button_data_decryption.setStyleSheet(
             "background:#3C5A75; border-radius: 5px; min-width: 300px; min-height: 200px;"
         )
-        self.crypt.clicked.connect(self.double_choice)
+        self.button_data_decryption.clicked.connect(self.dialogue_window_crypt)
 
         self.exit = QPushButton("Exit", self)
         self.exit.adjustSize()
@@ -116,73 +121,98 @@ class Window(QWidget):
         self.text_main_label = ScrollLabel(self)
         self.text_main_label.setStyleSheet("background:#d9d4e7; color: #3C5A75; ")
 
-        self.key_main_label = ScrollLabel(self)
-        self.key_main_label.setStyleSheet("background:#f9d4e7; color: #3C5A75; ")
+        self.symmetric_key_label = ScrollLabel(self)
+        self.symmetric_key_label.setStyleSheet("background:#f9d4e7; color: #3C5A75; ")
 
-        self.freq_main_label = ScrollLabel(self)
-        self.freq_main_label.setStyleSheet("background:#a9d4e7; color: #3C5A75; ")
+        self.private_key_label = ScrollLabel(self)
+        self.private_key_label.setStyleSheet("background:#a9d4e7; color: #3C5A75; ")
+
+        self.public_key_label = ScrollLabel(self)
+        self.public_key_label.setStyleSheet("background:#19d4e7; color: #3C5A75; ")
 
         layout = QGridLayout()
         self.setLayout(layout)
 
-        layout.addWidget(self.button_load_key_from_file, 0, 0)
-        layout.addWidget(self.button_load_text_from_file, 1, 0)
-        layout.addWidget(self.crypt, 2, 0)
+        layout.addWidget(self.button_key_generator, 0, 0)
+        layout.addWidget(self.button_data_encryption, 1, 0)
+        layout.addWidget(self.button_data_decryption, 2, 0)
         layout.addWidget(self.exit, 3, 0)
         layout.addWidget(self.text_main_label, 0, 2, 4, 1)
-        layout.addWidget(self.key_main_label, 0, 3, 2, 1)
-        layout.addWidget(self.freq_main_label, 2, 3, 2, 1)
+        layout.addWidget(self.symmetric_key_label, 0, 3, 1, 1)
+        layout.addWidget(self.private_key_label, 1, 3, 1, 1)
+        layout.addWidget(self.public_key_label, 2, 3, 2, 1)
         self.show()
 
-    def dialogue_window(self) -> None:
+    def button_maker_dialog(self,text:str, function, dialog:QDialog)-> QPushButton:
+        button = QPushButton(text, dialog)
+        button.setFont(QFont("Sanserif", 10))
+        button.clicked.connect(function)
+        button.setStyleSheet(
+                "background:#3C5A75; border-radius: 5px; min-height:30%; margin-bottom: 10px;"
+            )
+        button.adjustSize()
+        return button
+
+    def path_line_maker(self, dialog:QDialog)->QLineEdit:
+        path_line_edit = QLineEdit(dialog)
+        path_line_edit.setEnabled(False)
+        path_line_edit.setTextMargins(10, 10, 10, 10)
+        path_line_edit.setStyleSheet(
+            "background:#d9d4e7; border-radius: 5px; color: #0e172c; min-height:30%;"
+        )
+        return path_line_edit
+    
+    def combo_maker(self, args:list[str])->QComboBox:
+        combo = QComboBox(self)
+        combo.setStyleSheet("background:#d9d4e7; color: #0e172c; margin-bottom:10px; padding:2px;")
+        combo.setFont(QFont("Sanserif", 9))
+        combo.addItems(args)
+        return combo
+    
+
+    def dialogue_window_key_generator(self) -> None:
         """
         The function show dialog window to load text or key files
         """
         dialog = QDialog(self)
         dialog.setWindowTitle("Load")
-        dialog.setFixedSize(500, 200)
-        path_label = QLabel("Choose path:", dialog)
+        dialog.setFixedSize(500, 400)
+
+        path_label = QLabel("Choose paths:", dialog)
         path_label.setStyleSheet("color: #C3D0DB; min-height:30%")
-        self.file_path = ""
-        self.path_line_edit = QLineEdit(dialog)
-        self.path_line_edit.setEnabled(False)
-        self.path_line_edit.setTextMargins(10, 10, 10, 10)
-        self.path_line_edit.setStyleSheet(
-            "background:#d9d4e7; border-radius: 5px; color: #0e172c; min-height:30%"
-        )
 
-        browse_button = QPushButton("Select path", dialog)
-        browse_button.setFont(QFont("Sanserif", 10))
-        if self.mode == "key":
-            browse_button.clicked.connect(self.select_key_path)
-        elif self.mode == "text":
-            browse_button.clicked.connect(self.select_text_path)
-        browse_button.setStyleSheet(
-            "background:#3C5A75; border-radius: 5px; min-height:30%"
-        )
-        browse_button.adjustSize()
+        self.path_encrypted_symmetric_key = ""
+        self.path_public_key = ""
+        self.path_private_key = ""
 
-        load_button = QPushButton("Load file", dialog)
-        load_button.setFont(QFont("Sanserif", 10))
-        load_button.setStyleSheet(
-            "background:#3C5A75; border-radius: 5px;min-height:30%"
-        )
-        if self.mode == "key":
-            load_button.clicked.connect(self.load_key_from_file)
-        elif self.mode == "text":
-            load_button.clicked.connect(self.load_text_from_file)
-        load_button.adjustSize()
+        self.path_line_encrypted_symmetric_key = self.path_line_maker(dialog)
+        self.path_line_public_key = self.path_line_maker(dialog)
+        self.path_line_private_key = self.path_line_maker(dialog)
+
+        button_encrypted_symmetric_key = self.button_maker_dialog("Path to save encrypted symmetric key", self.get_path_symmetric_key, dialog)
+
+        button_public_key = self.button_maker_dialog("Path to save public key", self.get_path_public_key, dialog)
+        
+        button_private_key = self.button_maker_dialog("Path to save private key", self.get_path_private_key, dialog)
+        button_key_generate = self.button_maker_dialog('Generate keys', self.generate_keys, dialog)
+
+        self.key_len = self.combo_maker(['16', '24', '32']) 
 
         layout = QVBoxLayout()
         layout.addWidget(path_label)
-        layout.addWidget(self.path_line_edit)
-        layout.addWidget(browse_button)
-        layout.addWidget(load_button)
+        layout.addWidget(self.key_len)
+        layout.addWidget(self.path_line_encrypted_symmetric_key)
+        layout.addWidget(button_encrypted_symmetric_key)
+        layout.addWidget(self.path_line_public_key)
+        layout.addWidget(button_public_key)
+        layout.addWidget(self.path_line_private_key)
+        layout.addWidget(button_private_key)
+        layout.addWidget(button_key_generate)
         dialog.setLayout(layout)
 
         dialog.exec_()
 
-    def double_choice(self) -> None:
+    def dialogue_window_crypt(self) -> None:
         """
         The function show window to save a result of crypting/decrypting
         """
@@ -193,12 +223,7 @@ class Window(QWidget):
         path_label.setStyleSheet("color: #C3D0DB; min-height:30%")
         self.new_folderpath = ""
 
-        self.new_path_line_edit = QLineEdit(dialog)
-        self.new_path_line_edit.setEnabled(False)
-        self.new_path_line_edit.setTextMargins(10, 10, 10, 10)
-        self.new_path_line_edit.setStyleSheet(
-            "background:#d9d4e7; border-radius: 5px; color: #0e172c;"
-        )
+        self.new_path_line_edit = self.path_line_maker(dialog)
 
         path_to_save_button = QPushButton("Browse destination directory", dialog)
         path_to_save_button.setFont(QFont("Sanserif", 10))
@@ -238,30 +263,73 @@ class Window(QWidget):
         """
         Function switch mode to 'key' and run dialogue_window with this mode
         """
-        self.mode = "key"
-        self.dialogue_window()
+        self.mode = "key_generator"
+        self.dialogue_window_key_generator()
 
     def text_window(self) -> None:
         """
         Function switch mode to 'text' and run dialogue_window with this mode
         """
         self.mode = "text"
-        self.dialogue_window()
+        self.dialogue_window_key_generator()
 
-    def select_key_path(self) -> None:
+    def get_path_symmetric_key(self) -> None:
         """
         The function gets the path to the cryption-key (.json) file
         """
-        self.key_path = QFileDialog.getOpenFileNames(
-            self, "Load key", "", "Json files(*.json)"
-        )
-        if len(self.key_path[0]) > 0:
-            self.key_path = self.key_path[0][0].replace("/", "\\")
-            self.path_line_edit.setText(self.key_path)
+        self.path_encrypted_symmetric_key = (QFileDialog.getSaveFileName(self, "Select File",'symmetric_key',"(*.txt)"))[0].replace("/", "\\")
+        if len(self.path_encrypted_symmetric_key) > 0:
+            self.path_line_encrypted_symmetric_key.setText(self.path_encrypted_symmetric_key)
         else:
             MessageBox(self, "Incorrect path")
-            self.key_path = ""
+            self.path_encrypted_symmetric_key = ""
 
+
+    def get_path_public_key(self) -> None:
+        """
+        The function runs a library function to read the key from a file and display it in window
+        """
+        self.path_public_key = (QFileDialog.getSaveFileName(self, "Select File",'public_key',"(*.pem)" ))[0].replace("/", "\\")
+        if len(self.path_public_key) > 0:
+            self.path_line_public_key.setText(self.path_public_key)
+        else:
+            MessageBox(self, "Incorrect path")
+            self.path_public_key = ""
+
+
+    def get_path_private_key(self) -> None:
+        """
+        The function runs a library function to read the key from a file and display it in window
+        """
+        self.path_private_key = (QFileDialog.getSaveFileName(self, "Select File",'private_key',"(*.pem)"))[0].replace("/", "\\")
+        if len(self.path_private_key) > 0:
+            self.path_line_private_key.setText(self.path_private_key)
+        else:
+            MessageBox(self, "Incorrect path")
+            self.path_private_key = ""
+
+
+    def generate_keys(self)-> None:
+        """write latter
+        """
+        try:
+            key_len = int(self.key_len.currentText())
+            decr_symmetric_key = self.sym.key_generate(key_len)
+            assym_keys = self.asym.key_generate()
+            private_key = assym_keys[0]
+            public_key = assym_keys[1]
+            serialize.write_private_key(self.path_private_key, private_key)
+            serialize.wrute_public_key(self.path_public_key, public_key)
+            encrypted_symmetric_key =  self.asym.encrypt_symmetrical_key(decr_symmetric_key, self.path_public_key,self.path_encrypted_symmetric_key)
+            self.public_key_label.setText(str(public_key))
+            self.symmetric_key_label.setText(str(encrypted_symmetric_key))
+            self.private_key_label.setText(str(private_key))
+            MessageBox(self, "Complete")
+        except Exception as ex:
+            MessageBox(self, ex)
+        
+
+        
     def select_text_path(self) -> None:
         """
         The function gets the path to the text (.txt) file
@@ -276,16 +344,6 @@ class Window(QWidget):
             MessageBox(self, "Incorrect path")
             self.text_path = ""
 
-    def load_key_from_file(self) -> None:
-        """
-        The function runs a library function to read the key from a file and display it in window
-        """
-        try:
-            self.key = lib.get_key(self.key_path)
-            self.key_main_label.setText(lib.print_dict(self.key))
-        except AttributeError:
-            MessageBox(self, "Incorrect path")
-
     def load_text_from_file(self) -> None:
         """
         The function runs a library function to read the text and analysis its symbol frequency from a file and display it in window
@@ -293,7 +351,7 @@ class Window(QWidget):
         try:
             self.text = lib.get_text(self.text_path)
             self.text_main_label.setText(self.text)
-            self.freq_main_label.setText(lib.print_dict(lib.get_freq(self.text)))
+            self.private_key_label.setText(lib.print_dict(lib.get_freq(self.text)))
         except AttributeError:
             MessageBox(self, "Incorrect path")
 
