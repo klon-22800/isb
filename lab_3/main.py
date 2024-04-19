@@ -74,6 +74,7 @@ class Window(QWidget):
         )
         self.sym = lib.Symmetrical()
         self.asym = lib.Asymmetrical()
+        self.block_size = 0
 
 
     def initUI(self) -> None:
@@ -100,7 +101,7 @@ class Window(QWidget):
         self.button_data_encryption.setStyleSheet(
             "background:#3C5A75; border-radius: 5px; min-width: 300px; min-height: 200px;"
         )
-        self.button_data_encryption.clicked.connect(self.text_window)
+        self.button_data_encryption.clicked.connect(self.encryption_window)
 
         self.button_data_decryption = QPushButton("Data decryption with\n a hybrid system", self)
         self.button_data_decryption.adjustSize()
@@ -189,11 +190,9 @@ class Window(QWidget):
         self.path_line_public_key = self.path_line_maker(dialog)
         self.path_line_private_key = self.path_line_maker(dialog)
 
-        button_encrypted_symmetric_key = self.button_maker_dialog("Path to save encrypted symmetric key", self.get_path_symmetric_key, dialog)
-
-        button_public_key = self.button_maker_dialog("Path to save public key", self.get_path_public_key, dialog)
-        
-        button_private_key = self.button_maker_dialog("Path to save private key", self.get_path_private_key, dialog)
+        button_encrypted_symmetric_key = self.button_maker_dialog("Path to save encrypted symmetric key", self.get_save_symmetric_key, dialog)
+        button_public_key = self.button_maker_dialog("Path to save public key", self.get_save_public_key, dialog)
+        button_private_key = self.button_maker_dialog("Path to save private key", self.get_save_private_key, dialog)
         button_key_generate = self.button_maker_dialog('Generate keys', self.generate_keys, dialog)
 
         self.key_len = self.combo_maker(['16', '24', '32']) 
@@ -201,12 +200,16 @@ class Window(QWidget):
         layout = QVBoxLayout()
         layout.addWidget(path_label)
         layout.addWidget(self.key_len)
+
         layout.addWidget(self.path_line_encrypted_symmetric_key)
         layout.addWidget(button_encrypted_symmetric_key)
+
         layout.addWidget(self.path_line_public_key)
         layout.addWidget(button_public_key)
+
         layout.addWidget(self.path_line_private_key)
         layout.addWidget(button_private_key)
+
         layout.addWidget(button_key_generate)
         dialog.setLayout(layout)
 
@@ -214,47 +217,48 @@ class Window(QWidget):
 
     def dialogue_window_crypt(self) -> None:
         """
-        The function show window to save a result of crypting/decrypting
+        The function show dialog window to load text or key files
         """
         dialog = QDialog(self)
-        dialog.setWindowTitle("Decrypt/Encrypt")
-        dialog.setFixedSize(500, 250)
-        path_label = QLabel("Choose path:", dialog)
+        dialog.setWindowTitle("Load")
+        dialog.setFixedSize(500, 500)
+
+        path_label = QLabel("Choose paths:", dialog)
         path_label.setStyleSheet("color: #C3D0DB; min-height:30%")
-        self.new_folderpath = ""
 
-        self.new_path_line_edit = self.path_line_maker(dialog)
+        self.path_to_open_text = ''
+        self.path_private_key = ''
+        self.path_encrypted_symmetric_key = ''
+        self.path_to_save_text = ''
 
-        path_to_save_button = QPushButton("Browse destination directory", dialog)
-        path_to_save_button.setFont(QFont("Sanserif", 10))
-        path_to_save_button.clicked.connect(self.path_to_save)
-        path_to_save_button.setStyleSheet(
-            "background:#3C5A75; border-radius: 5px; min-height:30%"
-        )
-        path_to_save_button.adjustSize()
+        self.path_line_open_text = self.path_line_maker(dialog)
+        self.path_line_private_key = self.path_line_maker(dialog)
+        self.path_line_encrypted_symmetric_key = self.path_line_maker(dialog)
+        self.path_line_save_text = self.path_line_maker(dialog)
 
-        decyp_button = QPushButton("Decrypt ", dialog)
-        decyp_button.setFont(QFont("Sanserif", 10))
-        decyp_button.clicked.connect(self.decrypt_by_key)
-        decyp_button.setStyleSheet(
-            "background:#3C5A75; border-radius: 5px; min-height:30%"
-        )
-        decyp_button.adjustSize()
+        path_to_open_text_button = self.button_maker_dialog("Choose path to text", self.get_path_to_open, dialog)
+        path_to_private_key_button = self.button_maker_dialog("Choose private key", self.get_open_private_key, dialog)
+        path_to_encr_symmetric_key_button = self.button_maker_dialog("Choose encrypted symmetric key", self.get_open_symmetric_key, dialog)
+        path_to_save_text_button = self.button_maker_dialog("Choose path to save text", self.get_path_to_save, dialog)
 
-        cyp_button = QPushButton("Encrypt", dialog)
-        cyp_button.setFont(QFont("Sanserif", 10))
-        cyp_button.setStyleSheet(
-            "background:#3C5A75; border-radius: 5px; min-height:30%"
-        )
-        cyp_button.clicked.connect(self.encrypt_by_key)
-        cyp_button.adjustSize()
+        button_encrypt = self.button_maker_dialog('Encrypt', self.encrypt_text, dialog)
 
         layout = QVBoxLayout()
         layout.addWidget(path_label)
-        layout.addWidget(self.new_path_line_edit)
-        layout.addWidget(path_to_save_button)
-        layout.addWidget(decyp_button)
-        layout.addWidget(cyp_button)
+
+        layout.addWidget(self.path_line_open_text)
+        layout.addWidget(path_to_open_text_button)
+
+        layout.addWidget(self.path_line_private_key)
+        layout.addWidget(path_to_private_key_button)
+
+        layout.addWidget(self.path_line_encrypted_symmetric_key)
+        layout.addWidget(path_to_encr_symmetric_key_button)
+
+        layout.addWidget(self.path_line_save_text)
+        layout.addWidget(path_to_save_text_button)
+        layout.addWidget(button_encrypt)
+
         dialog.setLayout(layout)
 
         dialog.exec_()
@@ -263,17 +267,15 @@ class Window(QWidget):
         """
         Function switch mode to 'key' and run dialogue_window with this mode
         """
-        self.mode = "key_generator"
         self.dialogue_window_key_generator()
 
-    def text_window(self) -> None:
+    def encryption_window(self) -> None:
         """
         Function switch mode to 'text' and run dialogue_window with this mode
         """
-        self.mode = "text"
-        self.dialogue_window_key_generator()
+        self.dialogue_window_crypt()
 
-    def get_path_symmetric_key(self) -> None:
+    def get_save_symmetric_key(self) -> None:
         """
         The function gets the path to the cryption-key (.json) file
         """
@@ -285,7 +287,7 @@ class Window(QWidget):
             self.path_encrypted_symmetric_key = ""
 
 
-    def get_path_public_key(self) -> None:
+    def get_save_public_key(self) -> None:
         """
         The function runs a library function to read the key from a file and display it in window
         """
@@ -297,7 +299,7 @@ class Window(QWidget):
             self.path_public_key = ""
 
 
-    def get_path_private_key(self) -> None:
+    def get_save_private_key(self) -> None:
         """
         The function runs a library function to read the key from a file and display it in window
         """
@@ -309,12 +311,49 @@ class Window(QWidget):
             self.path_private_key = ""
 
 
+    def get_open_symmetric_key(self) -> None:
+        """
+        The function gets the path to the cryption-key (.json) file
+        """
+        self.path_encrypted_symmetric_key = (QFileDialog.getOpenFileName(self, "Select File",'symmetric_key',"(*.txt)"))[0].replace("/", "\\")
+        if len(self.path_encrypted_symmetric_key) > 0:
+            self.path_line_encrypted_symmetric_key.setText(self.path_encrypted_symmetric_key)
+        else:
+            MessageBox(self, "Incorrect path")
+            self.path_encrypted_symmetric_key = ""
+
+
+    def get_open_public_key(self) -> None:
+        """
+        The function runs a library function to read the key from a file and display it in window
+        """
+        self.path_encr_public_key = (QFileDialog.getOpenFileName(self, "Select File",'public_key',"(*.pem)" ))[0].replace("/", "\\")
+        if len(self.path_encr_public_key) > 0:
+            self.path_line_encrypted_symmetric_key.setText(self.path_encr_public_key)
+        else:
+            MessageBox(self, "Incorrect path")
+            self.path_encr_public_key = ""
+
+
+
+    def get_open_private_key(self) -> None:
+        """
+        The function runs a library function to read the key from a file and display it in window
+        """
+        self.path_private_key = (QFileDialog.getOpenFileName(self, "Select File",'private_key',"(*.pem)"))[0].replace("/", "\\")
+        if len(self.path_private_key) > 0:
+            self.path_line_private_key.setText(self.path_private_key)
+        else:
+            MessageBox(self, "Incorrect path")
+            self.path_private_key = ""
+
+
     def generate_keys(self)-> None:
         """write latter
         """
         try:
-            key_len = int(self.key_len.currentText())
-            decr_symmetric_key = self.sym.key_generate(key_len)
+            self.block_size = int(self.key_len.currentText())
+            decr_symmetric_key = self.sym.key_generate(self.block_size)
             assym_keys = self.asym.key_generate()
             private_key = assym_keys[0]
             public_key = assym_keys[1]
@@ -328,7 +367,11 @@ class Window(QWidget):
         except Exception as ex:
             MessageBox(self, ex)
         
-
+    def encrypt_text(self)->None:
+        key_len = self.block_size
+        symmetric_key = self.asym.decrypt_symmetrical_key(self.path_encrypted_symmetric_key, self.path_private_key)
+        encr_text =  self.sym.encrypt_text(self.path_to_open_text, symmetric_key, self.path_to_save_text, key_len*8)
+        self.text_main_label.setText(str(encr_text)) 
         
     def select_text_path(self) -> None:
         """
@@ -355,14 +398,24 @@ class Window(QWidget):
         except AttributeError:
             MessageBox(self, "Incorrect path")
 
-    def path_to_save(self) -> None:
+    def get_path_to_save(self) -> None:
         """
         The function gets the path to the save file
         """
-        self.result_text_path = (QFileDialog.getSaveFileName(self, "Select File"))[
-            0
-        ].replace("/", "\\")
-        self.new_path_line_edit.setText(self.result_text_path)
+        self.path_to_save_text = (QFileDialog.getSaveFileName(self, "Select File", "", "Text files (*.txt)"))[
+            0].replace("/", "\\")
+        if len(self.path_to_save_text) >0:
+            self.path_line_save_text.setText(self.path_to_save_text)
+        else:
+            MessageBox(self, "Incorrect path")
+            self.path_to_save_text = ""
+    
+    def get_path_to_open(self) -> None:
+        """
+        The function gets the path to the save file
+        """
+        self.path_to_open_text = (QFileDialog.getOpenFileName(self, "Select File", "", "Text files (*.txt)"))[0].replace("/", "\\")
+        self.path_line_open_text.setText(self.path_to_open_text)
 
     def decrypt_by_key(self) -> None:
         """
