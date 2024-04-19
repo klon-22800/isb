@@ -16,7 +16,7 @@ from PyQt5.QtWidgets import (
 )
 from PyQt5.QtGui import QFont, QIcon
 
-import lab_3.key_generation as lib
+import lab_3.crypto_lib as lib
 
 
 class MessageBox:
