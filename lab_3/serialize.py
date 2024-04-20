@@ -1,66 +1,41 @@
 import logging
 
+from cryptography.hazmat.primitives.asymmetric import rsa
+from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.serialization import (
     load_pem_public_key,
     load_pem_private_key,
 )
-from cryptography.hazmat.primitives.asymmetric import rsa
-from cryptography.hazmat.primitives import serialization
 
 
-def write_symmetric_key(file_path: str, data: bytes) -> None:
-    """
-        The function write data to text file
+def wrute_public_key(file_path: str, key: rsa.RSAPublicKey) -> None:
+    """function write public file in .pem file
 
     Args:
-        file_path (str): path to text file
-        data (bytes): data for write
-
-    Returns:
-        None
+        file_path (str): path to .pem file
+        key (rsa.RSAPublicKey): public key to write
     """
     try:
         with open(file_path, "wb") as f:
-            f.write(data)
+            f.write(
+                key.public_bytes(
+                    encoding=serialization.Encoding.PEM,
+                    format=serialization.PublicFormat.SubjectPublicKeyInfo,
+                )
+            )
     except Exception as error:
         logging.error(error)
 
 
-def read_symmetric_key(file_path: str) -> bytes:
+def read_public_key(file_path: str) -> rsa.RSAPublicKey:
     """
-        The function reads text file and return text
+        The function reads .pem file and return public key
 
     Args:
-        file_path (str): path to text file
+        file_path (str): path to .pem file
 
     Returns:
-        bytes: data from file
-    """
-    try:
-        with open(file_path, "rb") as f:
-            data = f.read()
-        return data
-    except Exception as error:
-        logging.error(error)
-
-
-def wrute_public_key(file_path:str, key: rsa.RSAPublicKey)-> None:
-    try:
-        with open(file_path, 'wb') as f:
-            f.write(key.public_bytes(encoding=serialization.Encoding.PEM, format=serialization.PublicFormat.SubjectPublicKeyInfo))
-    except Exception as error:
-        logging.error(error)
-
-
-def read_public_key(file_path: str) -> bytes:
-    """
-        The function reads text file and return text
-
-    Args:
-        file_path (str): path to text file
-
-    Returns:
-        bytes: data from file
+        rsa.RSAPublicKey: public key from file
     """
     try:
         with open(file_path, "rb") as f:
@@ -70,50 +45,87 @@ def read_public_key(file_path: str) -> bytes:
         logging.error(error)
 
 
-def write_private_key(file_path: str, key: rsa.RSAPrivateKey)-> None:
+def write_private_key(file_path: str, key: rsa.RSAPrivateKey) -> None:
+    """function write private key to .pem file
+
+    Args:
+        file_path (str): path to .pem file
+        key (rsa.RSAPrivateKey): private key to write
+    """
     try:
-        with open(file_path, 'wb') as f:
-            f.write(key.private_bytes(encoding=serialization.Encoding.PEM, format=serialization.PrivateFormat.TraditionalOpenSSL, encryption_algorithm=serialization.NoEncryption()))
+        with open(file_path, "wb") as f:
+            f.write(
+                key.private_bytes(
+                    encoding=serialization.Encoding.PEM,
+                    format=serialization.PrivateFormat.TraditionalOpenSSL,
+                    encryption_algorithm=serialization.NoEncryption(),
+                )
+            )
     except Exception as error:
         logging.error(error)
 
 
-def read_private_key(file_path: str) -> bytes:
+def read_private_key(file_path: str) -> rsa.RSAPrivateKey:
     """
-        The function reads text file and return text
+        The function reads private key from .pem file
 
     Args:
-        file_path (str): path to text file
+        file_path (str): path to .pem file
 
     Returns:
-        bytes: data from file
+        rsa.RSAPrivateKey: private key from file
     """
     try:
         with open(file_path, "rb") as f:
             data = f.read()
-        return load_pem_private_key(data, password=None,)
+        return load_pem_private_key(
+            data,
+            password=None,
+        )
     except Exception as error:
         logging.error(error)
 
 
-def read_text(file_path: str)-> str:
+def read_text(file_path: str) -> str:
+    """function read text from file
+
+    Args:
+        file_path (str): path to file for read
+
+    Returns:
+        str: text from file
+    """
     try:
-        with open(file_path, "r", encoding='utf-8') as f:
+        with open(file_path, "r", encoding="utf-8") as f:
             data = f.read()
         return data
     except Exception as error:
         logging.error(error)
 
 
-def write_text(file_path: str, data: str)-> str:
+def write_text(file_path: str, data: str) -> None:
+    """function write text to file
+
+    Args:
+        file_path (str): path to file for write
+        data (str): data to write
+    """
     try:
-        with open(file_path, "w", encoding='utf-8') as f:
+        with open(file_path, "w", encoding="utf-8") as f:
             f.write(data)
     except Exception as error:
         logging.error(error)
 
 
-def read_bytes(file_path: str)-> str:
+def read_bytes(file_path: str) -> str:
+    """function read bytes from txt file
+
+    Args:
+        file_path (str): path to file for read
+
+    Returns:
+        str: data from file
+    """
     try:
         with open(file_path, "rb") as f:
             data = f.read()
@@ -122,7 +134,13 @@ def read_bytes(file_path: str)-> str:
         logging.error(error)
 
 
-def write_bytes(file_path: str, data: str)-> str:
+def write_bytes(file_path: str, data: str) -> None:
+    """function write bytes to txt file
+
+    Args:
+        file_path (str): path to file for write
+        data (str): data to write
+    """
     try:
         with open(file_path, "wb") as f:
             f.write(data)
