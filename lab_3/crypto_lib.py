@@ -1,12 +1,12 @@
 import os
 
+import serialize
+
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives import padding as sym_padding
 from cryptography.hazmat.primitives.asymmetric import rsa
 from cryptography.hazmat.primitives.asymmetric import padding as asym_padding
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
-
-import serialize
 
 
 class Symmetrical:
@@ -139,7 +139,6 @@ class Asymmetrical:
             bytes: decrypted symmetric key
         """
         symmetrical_key = serialize.read_bytes(encrypted_key_path)
-        print(symmetrical_key)
         private_key = serialize.read_private_key(private_key_path)
 
         return private_key.decrypt(
@@ -150,20 +149,3 @@ class Asymmetrical:
                 label=None,
             ),
         )
-
-
-# TESTS
-# a = Symmetrical()
-# symm_key = a.key_generate(32)
-# a.encrypt_text("lab_3//tests//text.txt", symm_key, "lab_3//tests//encr.txt", 256)
-# a.decrypt_text(symm_key, "lab_3//tests//encr.txt", "lab_3//tests//decr.txt", 256)
-# b = Asymmetrical()
-# keys = b.key_generate()
-# serialize.write_private_key("lab_3//tests//private_key.pem", keys[0])
-# serialize.wrute_public_key("lab_3//tests//public_key.pem", keys[1])
-# b.encrypt_symmetrical_key(
-#     symm_key, "lab_3//tests//public_key.pem", "lab_3//tests//encr_symmetric_key.txt"
-# )
-# new_symm = b.decrypt_symmetrical_key(
-#     "lab_3//tests//encr_symmetric_key.txt", "lab_3//tests//private_key.pem"
-# )

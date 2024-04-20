@@ -1,6 +1,9 @@
 import sys
 
+import serialize
+
 from typing import Callable
+
 from PyQt5.QtWidgets import (
     QWidget,
     QLabel,
@@ -18,8 +21,7 @@ from PyQt5.QtWidgets import (
 )
 from PyQt5.QtGui import QFont, QIcon
 
-import serialize
-import crypto_lib as lib
+from crypto_lib import Symmetrical, Asymmetrical
 
 
 class MessageBox:
@@ -73,8 +75,8 @@ class Window(QWidget):
         self.setStyleSheet(
             "background:#061E33; color: #C3D0DB; font-weight:bold; border-radius: 5px;"
         )
-        self.sym = lib.Symmetrical()
-        self.asym = lib.Asymmetrical()
+        self.sym = Symmetrical()
+        self.asym = Asymmetrical()
         self.block_size = 0
 
     def main_window_button_maker(self, text: str, function: Callable) -> QPushButton:
