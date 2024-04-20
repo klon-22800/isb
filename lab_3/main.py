@@ -109,7 +109,7 @@ class Window(QWidget):
         self.button_data_decryption.setStyleSheet(
             "background:#3C5A75; border-radius: 5px; min-width: 300px; min-height: 200px;"
         )
-        self.button_data_decryption.clicked.connect(self.dialogue_window_crypt)
+        self.button_data_decryption.clicked.connect(self.decryption_window)
 
         self.exit = QPushButton("Exit", self)
         self.exit.adjustSize()
@@ -235,13 +235,16 @@ class Window(QWidget):
         self.path_line_private_key = self.path_line_maker(dialog)
         self.path_line_encrypted_symmetric_key = self.path_line_maker(dialog)
         self.path_line_save_text = self.path_line_maker(dialog)
-
+        
         path_to_open_text_button = self.button_maker_dialog("Choose path to text", self.get_path_to_open, dialog)
         path_to_private_key_button = self.button_maker_dialog("Choose private key", self.get_open_private_key, dialog)
         path_to_encr_symmetric_key_button = self.button_maker_dialog("Choose encrypted symmetric key", self.get_open_symmetric_key, dialog)
         path_to_save_text_button = self.button_maker_dialog("Choose path to save text", self.get_path_to_save, dialog)
 
-        button_encrypt = self.button_maker_dialog('Encrypt', self.encrypt_text, dialog)
+        if self.mode == 'encrypt':
+            button_crypt = self.button_maker_dialog('Encrypt', self.encrypt_text, dialog)
+        elif self.mode == 'decrypt':
+            button_crypt = self.button_maker_dialog('Decrypt', self.decrypt_text, dialog)
 
         layout = QVBoxLayout()
         layout.addWidget(path_label)
@@ -257,7 +260,7 @@ class Window(QWidget):
 
         layout.addWidget(self.path_line_save_text)
         layout.addWidget(path_to_save_text_button)
-        layout.addWidget(button_encrypt)
+        layout.addWidget(button_crypt)
 
         dialog.setLayout(layout)
 
@@ -273,6 +276,14 @@ class Window(QWidget):
         """
         Function switch mode to 'text' and run dialogue_window with this mode
         """
+        self.mode = 'encrypt'
+        self.dialogue_window_crypt()
+
+    def decryption_window(self) -> None:
+        """
+        Function switch mode to 'text' and run dialogue_window with this mode
+        """
+        self.mode = 'decrypt'
         self.dialogue_window_crypt()
 
     def get_save_symmetric_key(self) -> None:
@@ -373,6 +384,13 @@ class Window(QWidget):
         encr_text =  self.sym.encrypt_text(self.path_to_open_text, symmetric_key, self.path_to_save_text, key_len*8)
         self.text_main_label.setText(str(encr_text)) 
         
+
+    def decrypt_text(self)-> None:
+        key_len = self.block_size
+        symmetric_key = self.asym.decrypt_symmetrical_key(self.path_encrypted_symmetric_key, self.path_private_key)
+        decr_text = self.sym.decrypt_text(symmetric_key, self.path_to_open_text, self.path_to_save_text, key_len*8)
+        return decr_text
+
     def select_text_path(self) -> None:
         """
         The function gets the path to the text (.txt) file

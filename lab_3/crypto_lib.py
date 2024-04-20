@@ -58,7 +58,7 @@ class Symmetrical:
         unpadded_dc_text = unpadder.update(dc_text) + unpadder.finalize()
         dec_text = unpadded_dc_text.decode("UTF-8")
         serialize.write_text(decrypt_text_path, dec_text)
-        return
+        return dec_text
 
 
 class Asymmetrical:
