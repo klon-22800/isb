@@ -92,11 +92,11 @@ class Symmetrical:
 class Asymmetrical:
     """Class for asymmetrical algorithms"""
 
-    def key_generate(self) -> tuple[rsa.RSAPublicKey, rsa.RSAPrivateKey]:
+    def key_generate(self) -> tuple[rsa.RSAPrivateKey, rsa.RSAPublicKey]:
         """function generate asymmetrical keys
 
         Returns:
-            tuple[rsa.RSAPublicKey, rsa.RSAPrivateKey]: tuple of public and private keys
+            tuple[rsa.RSAPrivateKey, rsa.RSAPublicKey]: tuple of public and private keys
         """
         keys = rsa.generate_private_key(public_exponent=65537, key_size=2048)
         return keys, keys.public_key()
