@@ -1,7 +1,5 @@
 import sys
 
-import serialize
-
 from typing import Callable
 
 from PyQt5.QtWidgets import (
@@ -21,7 +19,9 @@ from PyQt5.QtWidgets import (
 )
 from PyQt5.QtGui import QFont, QIcon
 
-from crypto_lib import Symmetrical, Asymmetrical
+from symmetrical_lib import Symmetrical
+from assymetrical_lib import Asymmetrical
+from serialize import Serialization
 
 
 class MessageBox:
@@ -77,6 +77,7 @@ class Window(QWidget):
         )
         self.sym = Symmetrical()
         self.asym = Asymmetrical()
+        self.serialize = Serialization()
         self.block_size = 0
 
     def main_window_button_maker(self, text: str, function: Callable) -> QPushButton:
@@ -444,8 +445,8 @@ class Window(QWidget):
             assym_keys = self.asym.key_generate()
             private_key = assym_keys[0]
             public_key = assym_keys[1]
-            serialize.write_private_key(self.path_private_key, private_key)
-            serialize.wrute_public_key(self.path_public_key, public_key)
+            self.serialize.write_private_key(self.path_private_key, private_key)
+            self.serialize.write_public_key(self.path_public_key, public_key)
             encrypted_symmetric_key = self.asym.encrypt_symmetrical_key(
                 decr_symmetric_key,
                 self.path_public_key,
