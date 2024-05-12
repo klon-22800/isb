@@ -18,7 +18,7 @@ from PyQt5.QtWidgets import (
     QComboBox,
 )
 from PyQt5.QtGui import QFont, QIcon
-from matplotlib import pyplot as plt 
+from matplotlib import pyplot as plt
 
 import func
 import serialization
@@ -207,24 +207,29 @@ class Window(QWidget):
 
     def dialogue_window_card_load(self) -> None:
         """
-        The function show dialog window to generate keys
+        The function show dialog window to load card info
         """
         dialog = QDialog(self)
         dialog.setWindowTitle("Load")
-        dialog.setFixedSize(500, 250)
+        dialog.setFixedSize(500, 350)
 
         path_label = QLabel("Choose paths:", dialog)
         path_label.setStyleSheet("color: #C3D0DB; min-height:30%")
 
         self.path_card = ""
+        self.path_card_number = ""
 
         self.path_line_card = self.path_line_maker(dialog)
+        self.path_line_card_number = self.path_line_maker(dialog)
 
         button_card_info = self.button_maker_dialog(
             "Path to card info", self.get_open_card_info, dialog
         )
+        button_card_info_save = self.button_maker_dialog(
+            "Path to save card number", self.get_save_card_info, dialog
+        )
         button_card_info_view = self.button_maker_dialog(
-            "Load infio", self.load_card_info, dialog
+            "Load info", self.load_card_info, dialog
         )
         button_card_bruteforce = self.button_maker_dialog(
             "Brutforce", self.card_bruteforce, dialog
@@ -235,6 +240,8 @@ class Window(QWidget):
 
         layout.addWidget(self.path_line_card)
         layout.addWidget(button_card_info)
+        layout.addWidget(self.path_line_card_number)
+        layout.addWidget(button_card_info_save)
         layout.addWidget(button_card_info_view)
         layout.addWidget(button_card_bruteforce)
 
@@ -244,7 +251,7 @@ class Window(QWidget):
 
     def dialogue_window_time_test(self) -> None:
         """
-        The function show dialog window to generate keys
+        The function show dialog window to run time test
         """
         dialog = QDialog(self)
         dialog.setWindowTitle("Load")
@@ -260,9 +267,7 @@ class Window(QWidget):
         button_test = self.button_maker_dialog(
             "Path to save plot", self.get_save_test, dialog
         )
-        button_start_test = self.button_maker_dialog(
-            "Save", self.start_test, dialog
-        )
+        button_start_test = self.button_maker_dialog("Save", self.start_test, dialog)
 
         layout = QVBoxLayout()
         layout.addWidget(path_label)
@@ -277,13 +282,13 @@ class Window(QWidget):
 
     def card_load_window(self) -> None:
         """
-        Function run window for key generation
+        Function run window for load card info
         """
         self.dialogue_window_card_load()
 
     def get_open_card_info(self) -> None:
         """
-        The function gets the path to the save symmetric key
+        The function gets the path to the open file with card info
         """
         self.path_card = (
             QFileDialog.getOpenFileName(self, "Select File", "card.json", "(*.json)")
@@ -294,7 +299,21 @@ class Window(QWidget):
             MessageBox(self, "Incorrect path")
             self.path_encrypted_symmetric_key = ""
 
-    def load_card_info(self):
+    def get_save_card_info(self) -> None:
+        """function get path to save card info"""
+        self.path_card_number = (
+            QFileDialog.getSaveFileName(
+                self, "Select File", "card_num.json", "(*.json)"
+            )
+        )[0].replace("/", "\\")
+        if len(self.path_card_number) > 0:
+            self.path_line_card_number.setText(self.path_card_number)
+        else:
+            MessageBox(self, "Incorrect path")
+            self.path_card_number = ""
+
+    def load_card_info(self) -> None:
+        """function load card info from .json file"""
         info = serialization.read_json(self.path_card)
         last_num = info["LAST_NUM"]
         hash = info["HASH"]
@@ -304,18 +323,25 @@ class Window(QWidget):
             f"Last_num: {last_num}\n Hash: {hash}\n Bins: {bin_list}"
         )
 
-    def card_bruteforce(self):
+    def card_bruteforce(self) -> None:
+        """function try to brutforce card number and serilize them"""
         MessageBox(self, "Bruteforcing...")
         self.card_num = self.card.num_bruteforce(6)
         self.card_bruteforce_label.setText(str(self.card_num[0]))
+        if len(self.path_card_number) > 0:
+            serialization.write_json(
+                self.path_card_number, {"Number": self.card_num[0]}
+            )
 
-    def luna_check(self):
+    def luna_check(self) -> None:
+        """function check card_number by luna algorithm"""
         check = func.luna(self.card_num)
         if check:
             self.luna_label.setText("Карта действительна")
         self.luna_label.setText("Карта не действительна")
 
-    def get_save_test(self):
+    def get_save_test(self) -> None:
+        """function get path to save plot of time test"""
         self.path_test = (
             QFileDialog.getSaveFileName(self, "Select File", "test.png", "(*.png)")
         )[0].replace("/", "\\")
@@ -325,7 +351,8 @@ class Window(QWidget):
             MessageBox(self, "Incorrect path")
             self.path_test = ""
 
-    def start_test(self):
+    def start_test(self) -> None:
+        """frunction start time test"""
         if (
             len(self.card.bin_list) > 0
             and len(self.card.hash) > 0
@@ -334,7 +361,7 @@ class Window(QWidget):
             test = self.card.time_test()
             x = test[0]
             y = test[1]
-            plt.plot(x,y, marker = "o")
+            plt.plot(x, y, marker="o")
             plt.title("Зависимость времени от кол-ва потоков")
             plt.ylabel("Время в секундах")
             plt.xlabel("Кол-во потоков")
